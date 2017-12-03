@@ -5,6 +5,10 @@
 // compile and run with
 // c++ -o i2sp idea2_setsP.cpp -std=c++14 -fopenmp && ./i2sp
 
+//each thread maintains one tree
+//each thread goes through every element and decided whether
+//it should be inserted or deleted into its tree
+
 #include<set>
 #include<vector>
 #include<iostream>
