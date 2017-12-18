@@ -22,6 +22,7 @@ public:
 
     void insertParallel(const std::vector<dataType> & );
     void eraseParallel(const std::vector<dataType> & );
+    void lookUpParallel(const std::vector<dataType> &, std::vector<int> &);
     void printAllTrees() const;
 };
 
@@ -106,4 +107,41 @@ void SetParallel::eraseParallel(const std::vector<dataType> & vectToErase ){
     }
   }
   #pragma omp barrier
+}
+
+void SetParallel::lookUpParallel(const std::vector<dataType> & vectToLookUp, std::vector<int> & results){
+  #pragma omp parallel num_threads(numThreads)
+  {
+    int myID=omp_get_thread_num();
+    std::set<dataType>::iterator iter;
+    for(int vectToLookUpPosition=0; vectToLookUpPosition<vectToLookUp.size(); ++vectToLookUpPosition){
+      if(myID==0){
+        if(vectToLookUp[vectToLookUpPosition] <= rightEndPoints[myID]){
+          iter=allData[myID].begin();
+          iter=allData[myID].find(vectToLookUp[vectToLookUpPosition]);
+          if(iter != allData[myID].end()){
+            results[vectToLookUpPosition]=1;
+          }
+        }
+      }
+      else if(myID==numThreads-1){
+        if(vectToLookUp[vectToLookUpPosition] > rightEndPoints[myID-1]){
+          iter=allData[myID].begin();
+          iter=allData[myID].find(vectToLookUp[vectToLookUpPosition]);
+          if(iter != allData[myID].end()){
+            results[vectToLookUpPosition]=1;
+          }
+        }
+      }
+      else{
+        if(vectToLookUp[vectToLookUpPosition] > rightEndPoints[myID-1] && vectToLookUp[vectToLookUpPosition] <= rightEndPoints[myID]){
+          iter=allData[myID].begin();
+          iter=allData[myID].find(vectToLookUp[vectToLookUpPosition]);
+          if(iter != allData[myID].end()){
+            results[vectToLookUpPosition]=1;
+          }
+        }
+      }
+    }
+  }
 }

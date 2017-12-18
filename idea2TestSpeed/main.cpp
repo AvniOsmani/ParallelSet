@@ -6,7 +6,10 @@
 #include"timer4300.cpp"
 #include <time.h>
 
+long long int numOfTestSubjects = 1000000;
+
 int main(){
+  std::cout<<std::endl;
   //generate random doubles for insertion
   std::vector<dataType> testData;
 
@@ -14,7 +17,7 @@ int main(){
   dataType x1 = -1000.0, x2 = 1000.0, x;
 
   srandom(time(NULL));
-  for(int i=0; i<1000000; ++i){
+  for(int i=0; i<numOfTestSubjects; ++i){
     x = x1 + ( x2 - x1) * (random() % max_rand) / max_rand;
     testData.push_back(x);
   }
@@ -39,12 +42,52 @@ int main(){
   tm.end();
   std::cout<<"Parallel insertion finished in "<<tm.getTime()<<" miliseconds."<<std::endl <<std::endl;
 
-  //generate random doulbes for deletion
+  //use data from testData and generate random doubles to lookup
+  std::vector<dataType> checkData;
+  for(int i=0; i<numOfTestSubjects; ++i){
+    x = x1 + ( x2 - x1) * (random() % max_rand) / max_rand;
+    checkData.push_back(x);
+    if(i%4 == 0){
+      checkData.push_back(testData[i]);
+    }
+  }
+
+  //testing lookup speed in c++ standard set
+  std::set<dataType>::iterator it;
+  std::cout<<"Lookup started in c++ standard set"<<std::endl;
+  tm.start();
+  for(int i=0; i<checkData.size(); ++i){
+    it = singularSet.begin();
+    it = singularSet.find(checkData[i]);
+    if(it == singularSet.end()){}
+  }
+  tm.end();
+  std::cout<<"Standard lookup finished in "<<tm.getTime()<<" miliseconds."<<std::endl <<std::endl;
+
+  //testing lookup speed in parallel set
+  std::vector<int> results;
+  results.resize(checkData.size());
+  for(int i=0; i<results.size(); ++i){
+    results[i] = 0;
+  }
+  std::cout<<"Lookup started in parallel set"<<std::endl;
+  tm.start();
+  pSet.lookUpParallel(checkData, results);
+  for(int i=0; i<results.size(); ++i){
+    if(results[i] == 1){}
+  }
+  tm.end();
+  std::cout<<"Parallel lookup finished in "<<tm.getTime()<<" miliseconds."<<std::endl <<std::endl;
+
+  //use data from testData and generate random doulbes for deletion
   std::vector<dataType> deleteData;
   srandom(time(NULL));
-  for(int i=0; i<1000000; ++i){
+  for(int i=0; i<numOfTestSubjects; ++i){
     x = x1 + ( x2 - x1) * (random() % max_rand) / max_rand;
     deleteData.push_back(x);
+    if(i%4 == 0){
+      deleteData.push_back(testData[i]);
+    }
   }
 
   //testing deletion speed in c++ standard set
@@ -62,35 +105,6 @@ int main(){
   pSet.eraseParallel(deleteData);
   tm.end();
   std::cout<<"Parallel deletion finished in "<<tm.getTime()<<" miliseconds."<<std::endl <<std::endl;
-
-  /*std::vector<dataType> checkData;
-  for(int i=0; i<1000000; ++i){
-    x = x1 + ( x2 - x1) * (random() % max_rand) / max_rand;
-    checkData.push_back(x);
-  }
-
-  //testing lookup speed in c++ standard set
-  std::set<dataType>::iterator it;
-  std::cout<<"Lookup started in c++ standard set"<<std::endl;
-  tm.start();
-  for(int i=0; i<checkData.size(); ++i){
-    it = singularSet.begin();
-    it = singularSet.find(checkData[i]);
-    if(it == singularSet.end()){}
-  }
-  tm.end();
-  std::cout<<"Standard lookup finished in "<<tm.getTime()<<" miliseconds."<<std::endl <<std::endl;
-
-  //testing lookup speed in parallel set
-  std::vector<int> results;
-  std::cout<<"Lookup started in parallel set"<<std::endl;
-  tm.start();
-  pSet.checkElements(checkData, results);
-  for(int i=0; i<results.size(); ++i){
-    if(results[i] == 1){}
-  }
-  tm.end();
-  std::cout<<"Parallel lookup finished in "<<tm.getTime()<<" miliseconds."<<std::endl <<std::endl;*/
 
   return 0;
 }
