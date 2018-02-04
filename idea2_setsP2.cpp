@@ -6,7 +6,7 @@
 // c++ -o i2sp2 idea2_setsP2.cpp -std=c++14 -fopenmp && ./i2sp2
 
 //each thread maintains one tree
-//each thread goes through every element and decided whether
+//each thread goes through every element and decides whether
 //it should be inserted or deleted into its tree
 
 #include<set>
