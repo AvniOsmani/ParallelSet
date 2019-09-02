@@ -103,26 +103,35 @@ void set_parallel<T>::rebalance_trees(){
 
     // move data to correct trees
     typename std::set<T>::iterator iter;
-    for(iter=allData[0].begin(); iter!=allData[0].end(); ++iter){
+    for(iter=allData[0].begin(); iter!=allData[0].end(); ){
       if((*iter) > rightEndPoints[0]){
         insert_element((*iter));
-        allData[0].erase((*iter));
+        allData[0].erase(iter++);
+      }
+      else{
+        ++iter;
       }
     }
 
     for(int i=1; i<numThreads-1; ++i){
-      for(iter=allData[i].begin(); iter!=allData[i].end(); ++iter){
+      for(iter=allData[i].begin(); iter!=allData[i].end(); ){
         if((*iter) <= rightEndPoints[i-1] || (*iter) > rightEndPoints[i]){
           insert_element((*iter));
-          allData[i].erase((*iter));
+          allData[i].erase(iter++);
+        }
+        else{
+          ++iter;
         }
       }
     }
 
-    for(iter=allData[numThreads-1].begin(); iter!=allData[numThreads-1].end(); ++iter){
+    for(iter=allData[numThreads-1].begin(); iter!=allData[numThreads-1].end(); ){
       if((*iter) <= rightEndPoints[numThreads-2]){
         insert_element((*iter));
-        allData[numThreads-1].erase((*iter));
+        allData[numThreads-1].erase(iter++);
+      }
+      else{
+        ++iter;
       }
     }
   }
