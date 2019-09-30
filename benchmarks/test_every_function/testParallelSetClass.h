@@ -53,7 +53,8 @@ void set_parallel<T>::check_number_of_threads(){
   }
   catch(int &numThreads)
   {
-    std::cout<<"Your CPU has less than 3 threads, therefore you gain no benefit when using this parallel set. Use standard C++ set instead \n";
+    std::cout<<"Your CPU has less than 3 threads, therefore you gain no benefit when using this parallel set. \n";
+    std::cout<<"Use standard C++ set instead \n";
     exit(EXIT_FAILURE);
   }
 }
