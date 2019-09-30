@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <omp.h>
+#include <stdlib.h>
 
 template <class T>
 class set_parallel{
@@ -17,6 +18,7 @@ private:
     int numTrees;
     int numThreads;
 
+    void check_number_of_threads();
     void rebalance_trees();
 
 public:
@@ -40,6 +42,22 @@ public:
     T get_right_end_point(const int &) const;
     virtual ~set_parallel();
 };
+
+template <class T>
+void set_parallel<T>::check_number_of_threads(){
+  try
+  {
+    if(numThreads <= 2){
+      throw numThreads;
+    }
+  }
+  catch(int &numThreads)
+  {
+    std::cout<<"Your CPU has less than 3 threads, therefore you gain no benefit when using this parallel set. \n";
+    std::cout<<"Use standard C++ set instead \n";
+    exit(EXIT_FAILURE);
+  }
+}
 
 template <class T>
 void set_parallel<T>::rebalance_trees(){
@@ -130,6 +148,8 @@ set_parallel<T>::set_parallel(){
     }
   }
   numTrees=numThreads;
+    
+  check_number_of_threads();
 
   rightEndPoints.resize(numTrees-1);
   allData.resize(numTrees);
@@ -151,6 +171,8 @@ set_parallel<T>::set_parallel(const T & _predictionMin, const T & _predictionMax
     }
   }
   numTrees=numThreads;
+    
+  check_number_of_threads();
 
   rightEndPoints.resize(numTrees-1);
   allData.resize(numTrees);
@@ -172,6 +194,8 @@ set_parallel<T>::set_parallel(std::vector<T> & _sampleData){
     }
   }
   numTrees=numThreads;
+    
+  check_number_of_threads();
 
   rightEndPoints.resize(numTrees-1);
   allData.resize(numTrees);
